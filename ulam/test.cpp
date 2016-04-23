@@ -14,7 +14,7 @@ using namespace std;
 const int inches = 8;
 
 // Target DPI: 300
-const int DPI = 1200;
+const int DPI = 300;
 const int dotw = 6;
 const int doth = 6;
 
@@ -184,6 +184,19 @@ int main()
 
    // PGM Generation
    int white = 4;
+   for (int i = 0; i < dotw/2; ++i)
+      for (int j = 0; j < H; ++j)
+         image[i][j] = white;
+   for (int i = W - dotw/2; i < W; ++i)
+      for (int j = 0; j < H; ++j)
+         image[i][j] = white;
+   for (int j = 0; j < doth/2; ++j)
+      for (int i = 0; i < W; ++i)
+         image[i][j] = white;
+   for (int j = H - doth/2; j < H; ++j)
+      for (int i = 0; i < W; ++i)
+         image[i][j] = white;
+
    cout << "P2" << endl;
    cout << W << " " << H << endl;
    cout << white << endl;
