@@ -11,10 +11,10 @@ using namespace std;
 #define not !
 #endif
 
-const int inches = 8;
+const int inches = 1;
 
 // Target DPI: 300
-const int DPI = 300;
+const int DPI = 600;
 const int dotw = 6;
 const int doth = 6;
 
@@ -46,9 +46,9 @@ void print_mask()
    {
       for (int j = 0; j < DOTH; ++j)
       {
-         cout << mask[i][j] << " ";
+         cerr << mask[i][j] << " ";
       }
-      cout << endl;
+      cerr << endl;
    }
 }
 
@@ -112,40 +112,35 @@ void gen_mask()
    }
 }
 
+struct iofix
+{
+   ios_base::Init i;
+   iofix() {
+      cin.sync_with_stdio(0);
+      cin.tie(0);
+   }
+} iofix;
+
 int main()
 {
    gen_primes();
    gen_mask();
 
    // Setup
-   /* // 10 x 10
+   /* // 12 x 12
    vector<int> dot_data = {
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0,
-      0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-      0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-      0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-      0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-      0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-   };
-   //*/
-   /* // 10 x 10
-   vector<int> dot_data = {
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-      0, 0, 0, 1, 1, 1, 1, 0, 0, 0,
-      0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
-      0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
-      0, 0, 0, 1, 1, 1, 1, 0, 0, 0,
-      0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      3, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 3,
+      3, 3, 2, 2, 1, 1, 1, 1, 2, 2, 3, 3,
+      3, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3,
+      2, 2, 1, 1, 0, 0, 0, 0, 1, 1, 2, 2,
+      2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 2,
+      2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 2,
+      2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 2,
+      2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 2,
+      2, 2, 1, 1, 0, 0, 0, 0, 1, 1, 2, 2,
+      3, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3,
+      3, 3, 2, 2, 1, 1, 1, 1, 2, 2, 3, 3,
+      3, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 3
    };
    //*/
    //* // 6 x 6
@@ -184,41 +179,39 @@ int main()
 
    // PGM Generation
    int white = 4;
-   for (int i = 0; i < dotw/2; ++i)
-      for (int j = 0; j < H; ++j)
-         image[i][j] = white;
-   for (int i = W - dotw/2; i < W; ++i)
-      for (int j = 0; j < H; ++j)
-         image[i][j] = white;
-   for (int j = 0; j < doth/2; ++j)
-      for (int i = 0; i < W; ++i)
-         image[i][j] = white;
-   for (int j = H - doth/2; j < H; ++j)
-      for (int i = 0; i < W; ++i)
-         image[i][j] = white;
 
    cout << "P2" << endl;
    cout << W << " " << H << endl;
    cout << white << endl;
-   for (int i = 0, dx = 0; i < W - dotw; i += dotw, ++dx)
+   for (int i = 0; i < dotw/2; ++i)
+      for (int j = 0; j < H; ++j)
+         image[i][j] = white;
+   int u = 0, v = 0;
+   int dx = 0, dy = 0;
+   for (int i = dotw/2; i < W - dotw/2; ++i)
    {
-      for (int j = 0, dy = 0; j < H - doth; j += doth, ++dy)
+      for (int j = 0; j < doth/2; ++j)
+         image[i][j] = white;
+      for (int j = doth/2; j < H - doth/2; ++j)
       {
-         for (int x = 0; x < dotw; ++x)
-         {
-            for (int y = 0; y < doth; ++y)
-            {
-               int I = i + x + dotw/2;
-               int J = j + y + doth/2;
-               if (mask[dx][dy])
-                  image[I][J] = dot_map[x][y];
-               else
-                  image[I][J] = white;
-            }
-         }
+         if (mask[dx][dy])
+            image[i][j] = dot_map[u][v];
+         else
+            image[i][j] = white;
+         if (v + 1 == doth)
+            dy = (dy + 1) % DOTH;
+         v = (v + 1) % doth;
       }
+      for (int j = H - doth/2; j < H; ++j)
+         image[i][j] = white;
+      if (u + 1 == dotw)
+         dx = (dx + 1) % DOTW;
+      u = (u + 1) % dotw;
       cerr << "Row " << (dx + 1) << " Completed, of " << (W/dotw) << " rows." << '\n';
    }
+   for (int i = W - dotw/2; i < W; ++i)
+      for (int j = 0; j < H; ++j)
+         image[i][j] = white;
 
    for (int i = 0; i < W; ++i)
    {
@@ -233,4 +226,5 @@ int main()
    }
 
    print_consts();
+   print_mask();
 }
