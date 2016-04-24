@@ -1,8 +1,9 @@
-#include <iostream>
+#include <cstdio>
 #include <vector>
 #include <map>
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 using namespace std;
 
@@ -11,7 +12,7 @@ using namespace std;
 #define not !
 #endif
 
-const int inches = 1;
+const int inches = 8;
 
 // Target DPI: 300
 const int DPI = 600;
@@ -26,18 +27,17 @@ const int DOTH = H/doth - 1;
 
 const int dots = DOTW*DOTH;
 
-int image[W][H];
 bool mask[DOTW][DOTH];
 bool primes[dots + 1];
 
 void print_consts()
 {
-   cerr << "inches: " << inches << endl;
-   cerr << "DPI: " << DPI << endl;
-   cerr << "dotw and doth: " << dotw << " " << doth << endl;
-   cerr << "W and H: " << W << " " << H << endl;
-   cerr << "DOTW and DOTH: " << DOTW << " " << DOTH << endl;
-   cerr << "dots: " << dots << endl;
+   fprintf(stderr, "inches: %d\n", inches);
+   fprintf(stderr, "DPS: %d\n", DPI);
+   fprintf(stderr, "dotw and doth: %d %d\n", dotw, doth);
+   fprintf(stderr, "W and H: %d %d\n", W, H);
+   fprintf(stderr, "DOTW and DOTH: %d %d\n", DOTW, DOTH);
+   fprintf(stderr, "dots: %d\n", dots);
 }
 
 void print_mask()
@@ -46,9 +46,10 @@ void print_mask()
    {
       for (int j = 0; j < DOTH; ++j)
       {
-         cerr << mask[i][j] << " ";
+         int x = mask[i][j] ? 1 : 0;
+         fprintf(stderr, "%d ", x);
       }
-      cerr << endl;
+      fprintf(stderr, "\n");
    }
 }
 
@@ -70,8 +71,8 @@ void gen_primes()
 
 void gen_mask()
 {
-   int x = W/dotw/2;
-   int y = H/doth/2;
+   int x = DOTW/2;
+   int y = DOTH/2;
 
    int stepx = 1;
    int stepy = 1;
@@ -112,14 +113,22 @@ void gen_mask()
    }
 }
 
-struct iofix
+tuple<int, int, int> get_color(int id)
 {
-   ios_base::Init i;
-   iofix() {
-      cin.sync_with_stdio(0);
-      cin.tie(0);
+   switch(id)
+   {
+      case 0:
+         return make_tuple(1, 0, 0);
+      case 1:
+         return make_tuple(2, 0, 0);
+      case 2:
+         return make_tuple(3, 0, 0);
+      case 3:
+         return make_tuple(3, 1, 1);
+      default:
+         return make_tuple(4, 4, 4);
    }
-} iofix;
+}
 
 int main()
 {
@@ -129,7 +138,7 @@ int main()
    // Setup
    /* // 12 x 12
    vector<int> dot_data = {
-      3, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 3,
+      4, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 4,
       3, 3, 2, 2, 1, 1, 1, 1, 2, 2, 3, 3,
       3, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3,
       2, 2, 1, 1, 0, 0, 0, 0, 1, 1, 2, 2,
@@ -140,17 +149,17 @@ int main()
       2, 2, 1, 1, 0, 0, 0, 0, 1, 1, 2, 2,
       3, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3,
       3, 3, 2, 2, 1, 1, 1, 1, 2, 2, 3, 3,
-      3, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 3
+      4, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 4
    };
    //*/
    //* // 6 x 6
    vector<int> dot_data = {
-      4, 4, 3, 3, 4, 4,
-      4, 2, 1, 1, 2, 4,
+      4, 3, 2, 2, 3, 4,
       3, 1, 0, 0, 1, 3,
+      2, 0, 0, 0, 0, 2,
+      2, 0, 0, 0, 0, 2,
       3, 1, 0, 0, 1, 3,
-      4, 2, 1, 1, 2, 4,
-      4, 4, 3, 3, 4, 4,
+      4, 3, 2, 2, 3, 4,
    };
    //*/
    /* // 5 x 5
@@ -179,52 +188,66 @@ int main()
 
    // PGM Generation
    int white = 4;
+   int r, g, b;
 
-   cout << "P2" << endl;
-   cout << W << " " << H << endl;
-   cout << white << endl;
+   printf("P3\n");
+   printf("%d %d\n", W, H);
+   printf("%d\n", white);
    for (int i = 0; i < dotw/2; ++i)
+   {
       for (int j = 0; j < H; ++j)
-         image[i][j] = white;
+      {
+         tie(r, g, b) = get_color(white);
+         printf("%d %d %d", r, g, b);
+         if (j + 1 != H) printf(" ");
+      }
+      printf("\n");
+   }
    int u = 0, v = 0;
-   int dx = 0, dy = 0;
+   int dx = 0, dy = 0, dotrows = 0;
    for (int i = dotw/2; i < W - dotw/2; ++i)
    {
       for (int j = 0; j < doth/2; ++j)
-         image[i][j] = white;
+      {
+         tie(r, g, b) = get_color(white);
+         printf("%d %d %d ", r, g, b);
+      }
       for (int j = doth/2; j < H - doth/2; ++j)
       {
          if (mask[dx][dy])
-            image[i][j] = dot_map[u][v];
+            tie(r, g, b) = get_color(dot_map[u][v]);
          else
-            image[i][j] = white;
+            tie(r, g, b) = get_color(white);
+         printf("%d %d %d ", r, g, b);
          if (v + 1 == doth)
             dy = (dy + 1) % DOTH;
          v = (v + 1) % doth;
       }
       for (int j = H - doth/2; j < H; ++j)
-         image[i][j] = white;
+      {
+         tie(r, g, b) = get_color(white);
+         printf("%d %d %d", r, g, b);
+         if (j + 1 != H) printf(" ");
+      }
+      printf("\n");
       if (u + 1 == dotw)
+      {
+         fprintf(stderr, "Row %d Completed, of %d rows.\n", dotrows++, DOTW);
          dx = (dx + 1) % DOTW;
+      }
       u = (u + 1) % dotw;
-      cerr << "Row " << (dx + 1) << " Completed, of " << (W/dotw) << " rows." << '\n';
+
    }
    for (int i = W - dotw/2; i < W; ++i)
-      for (int j = 0; j < H; ++j)
-         image[i][j] = white;
-
-   for (int i = 0; i < W; ++i)
    {
       for (int j = 0; j < H; ++j)
       {
-         cout << image[i][j];
-         if (j + 1 != H)
-            cout << " ";
+         tie(r, g, b) = get_color(white);
+         printf("%d %d %d", r, g, b);
+         if (j + 1 != H) printf(" ");
       }
-      cout << '\n';
-      cerr << "Pixel row " << (i + 1) << " Written, of " << W << " rows." << '\n';
+      printf("\n");
    }
 
    print_consts();
-   print_mask();
 }
